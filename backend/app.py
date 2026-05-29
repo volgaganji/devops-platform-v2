@@ -1,14 +1,16 @@
 from flask import Flask, jsonify, request
 import psycopg2
+import os
 
 app = Flask(__name__)
 
 def get_db_connection():
     return psycopg2.connect(
-        host="postgres",
-        database="devops_db",
-        user="devops_user",
-        password="devops_pass"
+        host=os.getenv("DB_HOST", "postgres"),
+        database=os.getenv("DB_NAME", "devops_db"),
+        user=os.getenv("DB_USER", "devops_user"),
+        password=os.getenv("DB_PASSWORD", "devops_pass"),
+        port=os.getenv("DB_PORT", "5432")
     )
 
 def init_db():
@@ -16,11 +18,11 @@ def init_db():
     cur = conn.cursor()
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS products (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        price INTEGER NOT NULL
-    );
+        CREATE TABLE IF NOT EXISTS products (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            price INTEGER NOT NULL
+        );
     """)
 
     cur.execute("SELECT COUNT(*) FROM products;")
@@ -28,11 +30,11 @@ def init_db():
 
     if count == 0:
         cur.execute("""
-        INSERT INTO products (name, price)
-        VALUES
-        ('Laptop', 50000),
-        ('Phone', 25000),
-        ('Headphones', 3000);
+            INSERT INTO products (name, price)
+            VALUES
+            ('Laptop', 50000),
+            ('Phone', 25000),
+            ('Headphones', 3000);
         """)
 
     conn.commit()
@@ -115,4 +117,5 @@ def add_product():
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)
