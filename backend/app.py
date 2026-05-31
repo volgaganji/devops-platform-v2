@@ -4,14 +4,16 @@ import os
 
 app = Flask(__name__)
 
+
 def get_db_connection():
     return psycopg2.connect(
-	host=os.getenv("DB_HOST", "postgres"),
+        host=os.getenv("DB_HOST", "postgres"),
         database=os.getenv("DB_NAME", "devops_db"),
         user=os.getenv("DB_USER", "devops_user"),
         password=os.getenv("DB_PASSWORD", "devops_pass"),
-        port=os.getenv("DB_PORT", "5432")
+        port=os.getenv("DB_PORT", "5432"),
     )
+
 
 def init_db():
     conn = get_db_connection()
@@ -41,13 +43,16 @@ def init_db():
     cur.close()
     conn.close()
 
+
 @app.route("/")
 def home():
     return "Real-Time DevOps E-Commerce API"
 
+
 @app.route("/health")
 def health():
     return jsonify({"status": "ok"})
+
 
 @app.route("/db")
 def db_check():
@@ -59,6 +64,7 @@ def db_check():
     conn.close()
     return jsonify({"database": "connected", "version": version})
 
+
 @app.route("/products", methods=["GET"])
 def get_products():
     conn = get_db_connection()
@@ -68,10 +74,8 @@ def get_products():
     cur.close()
     conn.close()
 
-    return jsonify([
-        {"id": row[0], "name": row[1], "price": row[2]}
-        for row in rows
-    ])
+    return jsonify([{"id": row[0], "name": row[1], "price": row[2]} for row in rows])
+
 
 @app.route("/products/<int:product_id>", methods=["GET"])
 def get_product(product_id):
@@ -87,6 +91,7 @@ def get_product(product_id):
 
     return jsonify({"id": row[0], "name": row[1], "price": row[2]})
 
+
 @app.route("/products", methods=["POST"])
 def add_product():
     data = request.get_json()
@@ -97,19 +102,20 @@ def add_product():
     cur = conn.cursor()
     cur.execute(
         "INSERT INTO products (name, price) VALUES (%s, %s) RETURNING id;",
-        (name, price)
+        (name, price),
     )
     product_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
 
-    return jsonify({
-        "message": "product added",
-        "id": product_id,
-        "name": name,
-        "price": price
-    }), 201
+    return (
+        jsonify(
+            {"message": "product added", "id": product_id, "name": name, "price": price}
+        ),
+        201,
+    )
+
 
 @app.route("/products/<int:product_id>", methods=["PUT"])
 def update_product(product_id):
@@ -121,7 +127,7 @@ def update_product(product_id):
     cur = conn.cursor()
     cur.execute(
         "UPDATE products SET name = %s, price = %s WHERE id = %s RETURNING id;",
-        (name, price, product_id)
+        (name, price, product_id),
     )
     updated = cur.fetchone()
     conn.commit()
@@ -131,12 +137,10 @@ def update_product(product_id):
     if updated is None:
         return jsonify({"error": "product not found"}), 404
 
-    return jsonify({
-        "message": "product updated",
-        "id": product_id,
-        "name": name,
-        "price": price
-    })
+    return jsonify(
+        {"message": "product updated", "id": product_id, "name": name, "price": price}
+    )
+
 
 @app.route("/products/<int:product_id>", methods=["DELETE"])
 def delete_product(product_id):
@@ -151,10 +155,8 @@ def delete_product(product_id):
     if deleted is None:
         return jsonify({"error": "product not found"}), 404
 
-    return jsonify({
-        "message": "product deleted",
-        "id": product_id
-    })
+    return jsonify({"message": "product deleted", "id": product_id})
+
 
 if __name__ == "__main__":
     init_db()

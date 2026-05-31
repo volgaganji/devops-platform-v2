@@ -24,7 +24,7 @@ jobs:
 
       - name: Run Linting
         run: |
-          flake8 backend
+          flake8 backend --max-line-length=88
 
       - name: Security Scan
         run: |
