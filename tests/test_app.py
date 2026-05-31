@@ -59,3 +59,19 @@ def test_update_product():
 
     assert update_response.status_code == 200
     assert update_response.get_json()["message"] == "product updated"
+def test_delete_product():
+    init_db()
+
+    client = app.test_client()
+
+    create_response = client.post(
+        "/products",
+        json={"name": "Delete Product", "price": 300},
+    )
+
+    product_id = create_response.get_json()["id"]
+
+    delete_response = client.delete(f"/products/{product_id}")
+
+    assert delete_response.status_code == 200
+    assert delete_response.get_json()["message"] == "product deleted"
