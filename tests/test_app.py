@@ -29,3 +29,14 @@ def test_get_products():
     response = client.get("/products")
 
     assert response.status_code == 200
+def test_create_product():
+    init_db()
+
+    client = app.test_client()
+    response = client.post(
+        "/products",
+        json={"name": "Test Product", "price": 999},
+    )
+
+    assert response.status_code == 201
+    assert response.get_json()["message"] == "product added"
