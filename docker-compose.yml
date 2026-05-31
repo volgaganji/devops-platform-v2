@@ -4,6 +4,12 @@ services:
     container_name: flask_backend
     ports:
       - "8000:8000"
+    environment:
+      DB_HOST: postgres
+      DB_NAME: devops_db
+      DB_USER: devops_user
+      DB_PASSWORD: devops_pass
+      DB_PORT: 5432
     depends_on:
       - postgres
 

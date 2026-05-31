@@ -53,57 +53,53 @@ def health():
 def db_check():
     conn = get_db_connection()
     cur = conn.cursor()
-
     cur.execute("SELECT version();")
     version = cur.fetchone()[0]
-
     cur.close()
     conn.close()
-
-    return jsonify({
-        "database": "connected",
-        "version": version
-    })
+    return jsonify({"database": "connected", "version": version})
 
 @app.route("/products", methods=["GET"])
 def get_products():
     conn = get_db_connection()
     cur = conn.cursor()
-
     cur.execute("SELECT id, name, price FROM products ORDER BY id;")
     rows = cur.fetchall()
-
     cur.close()
     conn.close()
 
-    products = []
+    return jsonify([
+        {"id": row[0], "name": row[1], "price": row[2]}
+        for row in rows
+    ])
 
-    for row in rows:
-        products.append({
-            "id": row[0],
-            "name": row[1],
-            "price": row[2]
-        })
+@app.route("/products/<int:product_id>", methods=["GET"])
+def get_product(product_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, name, price FROM products WHERE id = %s;", (product_id,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
 
-    return jsonify(products)
+    if row is None:
+        return jsonify({"error": "product not found"}), 404
+
+    return jsonify({"id": row[0], "name": row[1], "price": row[2]})
 
 @app.route("/products", methods=["POST"])
 def add_product():
     data = request.get_json()
-
     name = data["name"]
     price = data["price"]
 
     conn = get_db_connection()
     cur = conn.cursor()
-
     cur.execute(
         "INSERT INTO products (name, price) VALUES (%s, %s) RETURNING id;",
         (name, price)
     )
-
     product_id = cur.fetchone()[0]
-
     conn.commit()
     cur.close()
     conn.close()
@@ -114,6 +110,51 @@ def add_product():
         "name": name,
         "price": price
     }), 201
+
+@app.route("/products/<int:product_id>", methods=["PUT"])
+def update_product(product_id):
+    data = request.get_json()
+    name = data["name"]
+    price = data["price"]
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE products SET name = %s, price = %s WHERE id = %s RETURNING id;",
+        (name, price, product_id)
+    )
+    updated = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    if updated is None:
+        return jsonify({"error": "product not found"}), 404
+
+    return jsonify({
+        "message": "product updated",
+        "id": product_id,
+        "name": name,
+        "price": price
+    })
+
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM products WHERE id = %s RETURNING id;", (product_id,))
+    deleted = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    if deleted is None:
+        return jsonify({"error": "product not found"}), 404
+
+    return jsonify({
+        "message": "product deleted",
+        "id": product_id
+    })
 
 if __name__ == "__main__":
     init_db()
