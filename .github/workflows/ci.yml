@@ -22,7 +22,13 @@ jobs:
         run: |
           pip install -r backend/requirements.txt
 
+      - name: Run Linting
+ 	run: flake8 backend
+
       - name: Run Tests
+        run: pytest tests
+
+	- name: Run Tests
         run: |
           pytest tests/
 
