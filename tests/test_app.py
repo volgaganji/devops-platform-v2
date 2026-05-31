@@ -20,3 +20,9 @@ def test_home():
 
     assert response.status_code == 200
     assert b"Real-Time DevOps" in response.data
+
+def test_get_products():
+    client = app.test_client()
+    response = client.get("/products")
+
+    assert response.status_code == 200
