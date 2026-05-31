@@ -10,10 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-
-	- name: Security Scan
-  	  run: bandit -r backend
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -27,12 +23,14 @@ jobs:
           pip install -r backend/requirements.txt
 
       - name: Run Linting
- 	run: flake8 backend
+        run: |
+          flake8 backend
+
+      - name: Security Scan
+        run: |
+          bandit -r backend
 
       - name: Run Tests
-        run: pytest tests
-
-	- name: Run Tests
         run: |
           pytest tests/
 
