@@ -1,72 +1,49 @@
-\# DevOps Platform V2
+# DevOps Platform V2
 
+A real-time DevOps e-commerce backend project using Flask, PostgreSQL, Docker, GitHub Actions, and Render.
 
+## Features
 
-\## Features
+- Flask REST API
+- PostgreSQL database
+- Docker containerization
+- Docker Compose local setup
+- GitHub Actions CI pipeline
+- Pytest automated testing
+- 77% test coverage
+- Flake8 linting
+- Bandit security scanning
+- Gunicorn production server
+- Render cloud deployment
 
-\- Flask REST API
+## Architecture
 
-\- PostgreSQL Database
+Developer
+→ GitHub
+→ GitHub Actions
+→ Tests, Linting, Security Scan
+→ Docker Build
+→ Render Deployment
+→ Flask API
+→ PostgreSQL
 
-\- Docker
+## API Endpoints
 
-\- Docker Compose
+GET `/health`
 
-\- GitHub Actions CI/CD
+GET `/db`
 
-\- Pytest Testing
+GET `/products`
 
-\- Flake8 Linting
+GET `/products/<id>`
 
-\- Bandit Security Scan
+POST `/products`
 
-\- Render Deployment
+PUT `/products/<id>`
 
+DELETE `/products/<id>`
 
+## Run Locally
 
-\## Endpoints
-
-
-
-GET /health
-
-GET /products
-
-POST /products
-
-PUT /products/<id>
-
-DELETE /products/<id>
-
-
-
-\## Run Locally
-
-
-
-docker compose up --build
-
-
-
-\## Run Tests
-
-
-
-pytest tests/
-
-
-
-\## CI/CD
-
-
-
-GitHub Actions automatically runs:
-
-\- Linting
-
-\- Security Scan
-
-\- Tests
-
-\- Docker Build
-
+```cmd
+docker compose up --build -d
