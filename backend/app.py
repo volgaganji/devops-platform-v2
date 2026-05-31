@@ -161,4 +161,4 @@ def delete_product(product_id):
 if __name__ == "__main__":
     init_db()
     port = int(os.getenv("PORT", 8000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port)  # nosec B104
